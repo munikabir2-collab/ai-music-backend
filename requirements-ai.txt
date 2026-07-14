@@ -1,0 +1,7 @@
+audiocraft
+torch
+torchaudio
+transformers
+demucs
+librosa
+soundfile
