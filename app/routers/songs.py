@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Depends,  HTTPException
 from sqlalchemy.orm import Session
 import shutil
 import os
-
+import mimetypes
 from fastapi.responses import FileResponse
 from app.database.database import get_db
 from app.models.song import Song
@@ -82,12 +82,13 @@ def stream_song(
             detail=f"File not found: {song.filepath}"
         )
 
+    media_type, _ = mimetypes.guess_type(song.filepath)
+
     return FileResponse(
         path=song.filepath,
-        media_type="audio/mpeg",
+        media_type=media_type or "application/octet-stream",
         filename=song.filename
     )
-
 
 
 # Delete Song API
@@ -117,3 +118,32 @@ def delete_song(
         "message": "Song deleted successfully",
         "deleted_song_id": song_id
     }    
+
+
+@router.get("/{song_id}/download")
+def download_song(
+    song_id: int,
+    db: Session = Depends(get_db)
+):
+    song = db.query(Song).filter(Song.id == song_id).first()
+
+    if not song:
+        raise HTTPException(
+            status_code=404,
+            detail="Song not found"
+        )
+
+    if not os.path.exists(song.filepath):
+        raise HTTPException(
+            status_code=404,
+            detail=f"File not found: {song.filepath}"
+        )
+
+    media_type, _ = mimetypes.guess_type(song.filepath)
+
+    return FileResponse(
+        path=song.filepath,
+        media_type=media_type or "application/octet-stream",
+        filename=song.filename,
+        content_disposition_type="attachment"
+    )    

@@ -7,35 +7,41 @@ from app.services.musicgen_service import generate_music
 def generate_complete_song(
     prompt: str,
     duration: int = 10,
-    genre: str = "Auto"
+    genre: str = "Pop"
 ):
 
     try:
 
-        # 1. Generate lyrics using OpenAI
+        print("Generating lyrics...")
+
         lyrics = generate_lyrics(
             prompt=prompt,
             genre=genre
         )
 
-        # 2. Better prompt for MusicGen
-        music_prompt = f"""
-Genre: {genre}
+        print("Lyrics generated successfully.")
 
-Song Theme:
+        # Short prompt for MusicGen
+        music_prompt = f"""
+{genre} instrumental music.
+
+Mood:
+Inspirational, emotional, cinematic.
+
+Theme:
 {prompt}
 
-Lyrics:
-{lyrics}
-
-Create an instrumental background music matching the lyrics.
+High quality background music.
 """
 
-        # 3. Generate Instrumental
+        print("Generating instrumental music...")
+
         music_file = generate_music(
-            music_prompt,
-            duration
+            prompt=music_prompt,
+            duration=duration
         )
+
+        print("Music generated successfully.")
 
         return {
             "success": True,
@@ -47,7 +53,6 @@ Create an instrumental background music matching the lyrics.
         }
 
     except Exception as e:
-
         traceback.print_exc()
 
         return {

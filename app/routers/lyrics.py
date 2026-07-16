@@ -11,7 +11,7 @@ router = APIRouter(
 class LyricsRequest(BaseModel):
     prompt: str
     language: str = "Hindi"
-    style: str = "Bollywood"
+    genre: str = "Bollywood"
 
 
 @router.post("/generate")
@@ -21,7 +21,7 @@ def create_lyrics(data: LyricsRequest):
         result = generate_lyrics(
             prompt=data.prompt,
             language=data.language,
-            style=data.style
+            genre=data.genre
         )
 
         return {

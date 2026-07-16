@@ -1,25 +1,31 @@
 import os
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from groq import Groq
 
 load_dotenv()
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
 )
-
 
 def generate_lyrics(
     prompt: str,
     language: str = "Hindi",
-    style: str = "Bollywood"
+    genre: str = "Bollywood"
 ) -> str:
 
-    response = client.responses.create(
-        model="gpt-5.5",
-        input=f"""
-Write an ORIGINAL {style} song in {language}.
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a professional songwriter. Write only original song lyrics."
+            },
+            {
+                "role": "user",
+                "content": f"""
+Write an ORIGINAL {genre} song in {language}.
 
 Topic:
 {prompt}
@@ -40,6 +46,10 @@ Outro
 
 Return ONLY the lyrics.
 """
+            }
+        ],
+        temperature=0.9,
+        max_tokens=1024,
     )
 
-    return response.output_text.strip()
+    return completion.choices[0].message.content.strip()

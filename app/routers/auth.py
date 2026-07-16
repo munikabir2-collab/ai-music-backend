@@ -41,9 +41,3 @@ def login(user: LoginSchema, db: Session = Depends(get_db)):
 
     return token
 
-
-@router.get("/")
-def home():
-    return {
-        "message": "Authentication API Running"
-    }
